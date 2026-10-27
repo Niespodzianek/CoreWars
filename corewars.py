@@ -128,16 +128,16 @@ program_5 = [
 
 sim = CoreWarsArena(size=30)
 
-# Wgrywamy program 1 pod adresem 9
+# Wgrywamy program 1 pod adresem 10
 # sim.add_program("BOMBER 1", start_address=10, program=program_1)
 
-# Wgrywamy program 2 pod adresem 7
+# Wgrywamy program 2 pod adresem 10
 # sim.add_program("IMP", start_address=10, program=program_2)
 
-# Wgrywamy program 3 pod adresem 25
+# Wgrywamy program 3 pod adresem 20
 # sim.add_program("BOMBER 2", start_address=20, program=program_3)
 
-# Wgrywamy program 4 pod adresem 0
+# Wgrywamy program 4 pod adresem 10
 sim.add_program("SCANNER", start_address=10, program=program_4)
 
 # Wgrywamy program 5 pod adresem 0
@@ -153,7 +153,7 @@ sim.dump()
 # Symulacja krok po kroku
 for krok in range(1, 100):
   print(f"Krok {krok}:")
-  input("Naciśniej ENTER aby kontynuować !!!")
+  input("Naciśniej ENTER aby kontynuować !!!" + "\n")
   sim.step()
   sim.dump()
   
