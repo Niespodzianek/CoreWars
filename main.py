@@ -1,5 +1,5 @@
 def main() -> None:
-    pass
+    print("Program wita Michasia !!!")
 
 
 if __name__ == "__main__":
