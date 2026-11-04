@@ -95,7 +95,7 @@ class CoreWarsArena:
 program_1 = [["MOV", 3, 5], ["ADD", 1, -1], ["JMP", -2, 0], ["DAT", 0, 0]]
 
 # Przykładowy program 2: IMP
-program_2 = [["MOV", 0, -1]]
+program_2 = [["MOV", 0, 1]]
 
 # Przykładowy program 3: Bombowiec
 program_3 = [["MOV", 3, -2], ["SUB", 1, -1], ["JMP", -2, 0], ["DAT", 0, 0]]
@@ -112,8 +112,8 @@ program_4 = [
 
 # Przykładowy program 5: scanner bomber
 program_5 = [
-    ["JMZ", 4, 8],   # 0: Radar (ip = 0). Cel: 0 + 8 = adres 8
-    ["MOV", 6, 7],   # 1: Atak (ip = 1). Źródło: 1 + 5 = 6. Cel: 1 + 6 = adres 7!
+    ["JMZ", 4, 10],   # 0: Radar (ip = 0). Cel: 0 + 8 = adres 8
+    ["MOV", 6, 9],   # 1: Atak (ip = 1). Źródło: 1 + 5 = 6. Cel: 1 + 6 = adres 7!
     ["ADD", 1, -1],  # 2: Zwiększ pole B w linii 1
     ["JMP", -2, 0],  # 3: Wróć do linii 0 (3 + (-2) = 1) 
     ["ADD", 1, -4],  # 4: Zwiększ dystans radaru w linii 0
@@ -122,26 +122,70 @@ program_5 = [
     ["DAT", 0, 0]    # 7: Magazyn amunicji (źródło bomby)
 ]
 
+# Przykładowy program 6: spl
+program_6 = [
+    ["SPL", 3, 0],   # 0: Stwórz nowy proces pod adresem (ip + 3) i biegnij dalej
+    ["MOV", 2, 5],   # 1: Kopiuj kod w bezpieczne miejsce w pamięci
+    ["JMP", -2, 0],  # 2: Wróć do góry i powtórz
+    ["DAT", 0, 0]    # 3: Obszar danych / cel replikacji
+]
+
+# Przykładowy program 7: spl
+program_7 = [
+    ["SPL", 3, 0],   # 0: Tworzy nowy wątek (skierowany na linię 3)
+    ["ADD", 1, 2],   # 1: Wątek A: modyfikuje komórkę danych
+    ["JMP", -2, 0],  # 2: Wątek A: wraca do linii 1
+    ["MOV", 2, 3],   # 3: Wątek B: wykonuje akcję kopiowania
+    ["JMP", -1, 0],  # 4: Wątek B: wraca do linii 3
+    ["DAT", 0, 0]    # 5: Magazyn danych / komórka robocza
+]
+
+# Przykładowy program 8: spl_3
+program_8 = [
+    ["SPL", 4, 0],
+    ["MOV", 10, 12],
+    ["ADD", 1, -1],
+    ["JMP", -2, 0],
+    ["SPL", 4, 0],
+    ["MOV", 6, 18],
+    ["ADD", 1, -1],
+    ["JMP", -2, 0],
+    #["SPL", 4, 0],
+    ["MOV", 3, 24],
+    ["ADD", 1, -1],
+    ["JMP", -2, 0],
+    ["DAT", 0, 0],
+]
+
 # =====================================================================
 # 2. SEKCJA IMPLEMENTACJI DO GŁÓWNEJ FUNKCJI (Wczytywanie na arenę)
 # =====================================================================
 
-sim = CoreWarsArena(size=30)
+sim = CoreWarsArena(size=37)
 
-# Wgrywamy program 1 pod adresem 10
+# Wgrywamy program 1 pod adresem 9
 # sim.add_program("BOMBER 1", start_address=10, program=program_1)
 
-# Wgrywamy program 2 pod adresem 10
-# sim.add_program("IMP", start_address=10, program=program_2)
+# Wgrywamy program 2 pod adresem 7
+# sim.add_program("IMP", start_address=12, program=program_2)
 
-# Wgrywamy program 3 pod adresem 20
-# sim.add_program("BOMBER 2", start_address=20, program=program_3)
+# Wgrywamy program 3 pod adresem 25
+# sim.add_program("BOMBER 2", start_address=0, program=program_3)
 
-# Wgrywamy program 4 pod adresem 10
-sim.add_program("SCANNER", start_address=10, program=program_4)
+# Wgrywamy program 4 pod adresem 0
+# sim.add_program("SCANNER", start_address=10, program=program_4)
 
 # Wgrywamy program 5 pod adresem 0
-sim.add_program("SCA_BOMB", start_address=0, program=program_5)
+sim.add_program("SCA_BOMB", start_address=30, program=program_5)
+
+# Wgrywamy program 6 pod adresem 0
+# sim.add_program("SPL", start_address=15, program=program_6)
+
+# Wgrywamy program 7 pod adresem 0
+# sim.add_program("SPL_2", start_address=0, program=program_7)
+
+# Wgrywamy program 8 pod adresem 0
+sim.add_program("SPL", start_address=0, program=program_8)
 
 # =====================================================================
 # 3. URUCHOMIENIE SYMULACJI
@@ -152,8 +196,8 @@ sim.dump()
 
 # Symulacja krok po kroku
 for krok in range(1, 100):
+  input("Naciśniej ENTER aby kontynuować !!!")
   print(f"Krok {krok}:")
-  input("Naciśniej ENTER aby kontynuować !!!" + "\n")
   sim.step()
   sim.dump()
   
