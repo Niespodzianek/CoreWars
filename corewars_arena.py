@@ -206,28 +206,28 @@ arena_size = 8000
 sim = CoreWarsArena(size=arena_size)
 
 # Wgrywamy program 1 pod adresem 9
-sim.add_program("BOMBER 1", start_address=1500, program=program_1)
+sim.add_program("BOMBER 1", start_address=600, program=program_1)
 
 # Wgrywamy program 2 pod adresem 7
 # sim.add_program("IMP", start_address=60, program=program_2)
 
 # Wgrywamy program 3 pod adresem 25
-sim.add_program("BOMBER 2", start_address=6000, program=program_3)
+sim.add_program("BOMBER 2", start_address=500, program=program_3)
 
 # Wgrywamy program 4 pod adresem 0
 sim.add_program("SCANNER", start_address=2000, program=program_4)
 
 # Wgrywamy program 5 pod adresem 0
-sim.add_program("SCA_BOMB", start_address=7000, program=program_5)
+sim.add_program("SCA_BOMB", start_address=4780, program=program_5)
 
 # Wgrywamy program 6 pod adresem 0
-sim.add_program("SPL", start_address=4400, program=program_6)
+sim.add_program("SPL", start_address=400, program=program_6)
 
 # Wgrywamy program 7 pod adresem 0
 sim.add_program("SPL_2", start_address=5500, program=program_7)
 
 # Wgrywamy program 8 pod adresem 0
-sim.add_program("SPL_3", start_address=0, program=program_8)
+sim.add_program("SPL_3", start_address=7300, program=program_8)
 
 # Wgrywamy program 2 pod adresem 7
 # sim.add_program("IMP_2", start_address=14, program=program_2)

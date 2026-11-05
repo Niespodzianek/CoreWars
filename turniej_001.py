@@ -1,6 +1,6 @@
 class CoreWarsArena:
 
-  def __init__(self, size=37):
+  def __init__(self, size=8000):
     self.size = size
     self.memory = [["DAT", 0, 0] for _ in range(size)]
     self.processes = []
@@ -23,7 +23,9 @@ class CoreWarsArena:
 
       # Warunek śmierci: wejście na DAT kończy dany proces
       if op == "DAT":
-        print(f"\n💥 Proces gracza '{player_id}' (IP: {ip}) wszedł na DAT i zginął!")
+        # W dużych symulacjach z 8000 komórek można odkomentować poniższy print,
+        # żeby widzieć każdy zgon, ale przy 6 graczach może spamować w konsoli:
+        # print(f"\n💥 Proces gracza '{player_id}' (IP: {ip}) wszedł na DAT i zginął!")
         continue  # Proces ginie i nie trafia do żywych
 
       next_ip = (ip + 1) % self.size
@@ -57,7 +59,6 @@ class CoreWarsArena:
       elif op == "DIV":
         target_addr = (ip + b) % self.size
         if a == 0:
-          print(f"\n💥 Proces gracza '{player_id}' (IP: {ip}) wykonał DZIELENIE PRZEZ ZERO i zginął!")
           continue
         self.memory[target_addr][2] = (
             self.memory[target_addr][2] // a
@@ -66,7 +67,6 @@ class CoreWarsArena:
       elif op == "MOD":
         target_addr = (ip + b) % self.size
         if a == 0:
-          print(f"\n💥 Proces gracza '{player_id}' (IP: {ip}) wykonał MODULO PRZEZ ZERO i zginął!")
           continue
         self.memory[target_addr][2] = (
             self.memory[target_addr][2] % a
@@ -93,7 +93,7 @@ class CoreWarsArena:
         if self.memory[target_addr][2] != 0:
           next_ip = (ip + a) % self.size
 
-      elif op == "SPL" or op == "PIN":
+      elif op == "SPL":
         spawn_addr = (ip + a) % self.size
         new_processes.append({"player_id": player_id, "ip": spawn_addr})
         
@@ -119,22 +119,12 @@ class CoreWarsArena:
 
     self.processes = surviving_processes + new_processes
 
-  def dump(self):
-    for idx, cell in enumerate(self.memory):
-      active_ips = [
-          p["player_id"] for p in self.processes if p["ip"] == idx
-      ]
-      pointer_str = f" <-- IP: {', '.join(active_ips)}" if active_ips else ""
-      # print(f"[{idx:2d}] {cell}{pointer_str}")
-    # print("-" * 60)
-
-
 # =====================================================================
 # 1. SEKCJA DEFINICJI PROGRAMÓW
 # =====================================================================
 
 # Przykładowy program 1: Bombowiec
-program_1 = [["MOV", 3, 5], ["ADD", 1, -1], ["JMP", -2, 0], ["DAT", 0, 0]]
+program_1 = [["MOV", 3, 1750], ["ADD", 1, -1], ["JMP", -2, 0], ["DAT", 0, 0]]
 
 # Przykładowy program 2: IMP
 program_2 = [["MOV", 0, 1]]
@@ -145,7 +135,7 @@ program_3 = [["MOV", 3, -2], ["SUB", 1, -1], ["JMP", -2, 0], ["DAT", 0, 0]]
 # Przykładowy program 4: scanner
 program_4 = [
     ["JMZ", 2, 8],   # 0: Radar (ip = 0). Cel: 0 + 6 = adres 6
-    ["MOV", 4, 7],   # 1: Atak (ip = 1). Źródło: 1 + 4 = 5. Cel: 1 + 5 = adres 6!
+    ["MOV", 4, 2200],   # 1: Atak (ip = 1). Źródło: 1 + 4 = 5. Cel: 1 + 5 = adres 6!
     ["ADD", 1, -2],  # 2: Zwiększ dystans radaru w linii 0
     ["ADD", 1, -2],  # 3: Zwiększ dystans ataku w linii 1
     ["JMP", -4, 0],  # 4: Powrót na początek pętli
@@ -155,8 +145,8 @@ program_4 = [
 # Przykładowy program 5: scanner bomber
 program_5 = [
     ["JMZ", 4, 10],   # 0: Radar (ip = 0). Cel: 0 + 8 = adres 8
-    ["MOV", 6, 9],   # 1: Atak (ip = 1). Źródło: 1 + 5 = 6. Cel: 1 + 6 = adres 7!
-    ["ADD", 1, -1],  # 2: Zwiększ pole B w linii 1
+    ["MOV", 6, 3000],   # 1: Atak (ip = 1). Źródło: 1 + 5 = 6. Cel: 1 + 6 = adres 7!
+    ["ADD", 10, -1],  # 2: Zwiększ pole B w linii 1
     ["JMP", -2, 0],  # 3: Wróć do linii 0 (3 + (-2) = 1) 
     ["ADD", 1, -4],  # 4: Zwiększ dystans radaru w linii 0
     ["ADD", 1, -4],  # 5: Zwiększ dystans ataku w linii 1
@@ -167,7 +157,7 @@ program_5 = [
 # Przykładowy program 6: spl
 program_6 = [
     ["SPL", 3, 0],   # 0: Stwórz nowy proces pod adresem (ip + 3) i biegnij dalej
-    ["MOV", 2, 5],   # 1: Kopiuj kod w bezpieczne miejsce w pamięci
+    ["MOV", 2, 5500],   # 1: Kopiuj kod w bezpieczne miejsce w pamięci
     ["JMP", -2, 0],  # 2: Wróć do góry i powtórz
     ["DAT", 0, 0]    # 3: Obszar danych / cel replikacji
 ]
@@ -177,22 +167,22 @@ program_7 = [
     ["SPL", 3, 0],   # 0: Tworzy nowy wątek (skierowany na linię 3)
     ["ADD", 1, 2],   # 1: Wątek A: modyfikuje komórkę danych
     ["JMP", -2, 0],  # 2: Wątek A: wraca do linii 1
-    ["MOV", 2, 3],   # 3: Wątek B: wykonuje akcję kopiowania
-    ["JMP", -1, 0],  # 4: Wątek B: wraca do linii 3
-    ["DAT", 0, 0]    # 5: Magazyn danych / komórka robocza
+    ["MOV", 2, 2000],   # 3: Wątek B: wykonuje akcję kopiowania
+    ["JMP", -1, 0],
+    ["DAT", 0, 0]
 ]
 
 # Przykładowy program 8: spl_3
 program_8 = [
     ["SPL", 4, 0],
-    ["MOV", 10, 12],
+    ["MOV", 10, 1000],
     ["ADD", 1, -1],
     ["JMP", -2, 0],
     ["SPL", 4, 0],
-    ["MOV", 6, 18],
+    ["MOV", 6, 3000],
     ["ADD", 1, -1],
     ["JMP", -2, 0],
-    ["MOV", 3, 24],
+    ["MOV", 3, 5000],
     ["ADD", 1, -1],
     ["JMP", -2, 0],
     ["DAT", 0, 0],
@@ -202,58 +192,66 @@ program_8 = [
 # 2. SEKCJA WCZYTYWANIA PROGRAMÓW NA ARENĘ
 # =====================================================================
 
-sim = CoreWarsArena(size=8000)
+rundy = int(input(f"Symulacja turnieju uruchomiona !!! Wpisz liczbę rund do  rozegrania: "))
+for runda in range(rundy):
+  arena_size = 8000
+  sim = CoreWarsArena(size=arena_size)
 
-# Wgrywamy program 1 pod adresem 9
-sim.add_program("BOMBER 1", start_address=0, program=program_1)
+  # Wgrywamy program 1
+  sim.add_program("BOMBER 1", start_address=600, program=program_1)
 
-# Wgrywamy program 2 pod adresem 7
-# sim.add_program("IMP", start_address=60, program=program_2)
+  # Wgrywamy program 2
+  # sim.add_program("IMP", start_address=60, program=program_2)
 
-# Wgrywamy program 3 pod adresem 25
-# sim.add_program("BOMBER 2", start_address=160, program=program_3)
+  # Wgrywamy program 3
+  sim.add_program("BOMBER 2", start_address=500, program=program_3)
 
-# Wgrywamy program 4 pod adresem 0
-sim.add_program("SCANNER", start_address=2000, program=program_4)
+  # Wgrywamy program 4
+  sim.add_program("SCANNER", start_address=2000, program=program_4)
 
-# Wgrywamy program 5 pod adresem 0
-sim.add_program("SCA_BOMB", start_address=3500, program=program_5)
+  # Wgrywamy program 5
+  sim.add_program("SCA_BOMB", start_address=4780, program=program_5)
 
-# Wgrywamy program 6 pod adresem 0
-sim.add_program("SPL", start_address=4250, program=program_6)
+  # Wgrywamy program 6
+  sim.add_program("SPL", start_address=400, program=program_6)
 
-# Wgrywamy program 7 pod adresem 0
-sim.add_program("SPL_2", start_address=5500, program=program_7)
+  # Wgrywamy program 7
+  sim.add_program("SPL_2", start_address=5500, program=program_7)
 
-# Wgrywamy program 8 pod adresem 0
-sim.add_program("SPL_3", start_address=7000, program=program_8)
-
-# Wgrywamy program 2 pod adresem 7
-# sim.add_program("IMP_2", start_address=14, program=program_2)
-
+  # Wgrywamy program 8
+  sim.add_program("SPL_3", start_address=7300, program=program_8)
 
 # =====================================================================
 # 3. URUCHOMIENIE SYMULACJI
 # =====================================================================
+  print(f"Runda {runda + 1} symulacji turnieju uruchomiona na arenie o rozmiarze {arena_size} komórek dla {len(sim.processes)} graczy.\n")
+  max_steps = 20000
+  winning_step = max_steps  # Domyślnie ustawiamy na max, jeśli nikt nie wyeliminuje rywali przed czasem
 
-print("Stan początkowy:")
-sim.dump()
-
-# Symulacja krok po kroku
-for krok in range(1, 100):
-  # input("Naciśnij ENTER aby kontynuować !!!")
-  # print(f"Krok {krok}:")
-  sim.step()
-  sim.dump()
+  for krok in range(1, max_steps + 1):
+    sim.step()
   
-  # Sprawdzamy, jacy gracze nadal mają aktywne procesy w grze
-  active_players = set(p["player_id"] for p in sim.processes)
-  if len(active_players) <= 1:
-    break
+    active_players = set(p["player_id"] for p in sim.processes)
+    if len(active_players) <= 1:
+      winning_step = krok
+      break
+  
+    if krok % 1000 == 0:
+      print(f"Krok {krok}: W grze pozostaje {len(active_players)} graczy: {list(active_players)}")
 
-active_players = set(p["player_id"] for p in sim.processes)
-if len(active_players) == 1:
-  zwycięzca = list(active_players)[0]
-  print(f"🏆 KONIEC GRY! Zwyciężył: {zwycięzca}")
-else:
-  print("🤝 Symulacja zakończona po wyznaczonej liczbie kroków.")
+# --- PODSUMOWANIE KOŃCOWE ---
+  active_processes_final = sim.processes
+  surviving_players = list(set(p["player_id"] for p in active_processes_final))
+
+  print("\n" + "="*50)
+  if len(surviving_players) == 1:
+    print(f"🏆 KONIEC GRY w kroku {winning_step}! Zwyciężył jedyny ocalały: {surviving_players[0]}")
+  elif len(surviving_players) > 1:
+    print(f"🤝 Symulacja zakończona po osiągnięciu limitu kroków ({max_steps}) w kroku {winning_step}.")
+    print(f"👑 Ocalałe programy, które dotrwały do końca ({len(surviving_players)}):")
+    for player in surviving_players:
+       proc_count = sum(1 for p in active_processes_final if p["player_id"] == player)
+       print(f"   - {player} (aktywne procesy: {proc_count})")
+  else:
+    print(f"💀 Wszyscy zginęli w kroku {winning_step}! Remis (brak żywych procesów).")
+  print("="*50)
